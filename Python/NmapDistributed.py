@@ -19,9 +19,9 @@ import os
 
 
 __author__ 		= "GoldraK"
-__credits__ 	= "GoldraK"
-__version__ 	= "0.1"
-__maintainer__ 	= "GoldraK"
+__credits__ 		= "GoldraK"
+__version__ 		= "0.1"
+__maintainer__ 		= "GoldraK"
 __email__ 		= "goldrak@gmail.com"
 __status__ 		= "Development"
 
