@@ -17,6 +17,50 @@ class NmapController extends MasterController
 	}
 
 
+
+	public function getScanByIdDevice($id_device)
+	{
+		return $this->model->getScanByIdDevice($id_device);
+	}
+
+	public function getIpByDevice($id_device)
+	{
+		return $this->model->getIpByDevice($id_device);
+	}
+
+
+
+	public function setScanDevices($id,$audit,$day_scan,$id_device,$servers)
+	{
+		$result_set_work = array('correct' => array(),'error'=>array('script'=>array(),'set'=>array()));
+		foreach ($servers as $key => $id_server) {
+			$result_check_Script_server = clone($this->checkServerScriptByUser($id,$id_server,'Nmap'));
+			if($result_check_Script_server->response == True and !empty($result_check_Script_server->result)){
+				$id_script_server = $result_check_Script_server->result->id_server_script;
+				$result_setScan = clone($this->setScriptServerWork($id,$id_device,$id_script_server,$day_scan));
+				if($result_setScan->response == True && !empty($result_setScan->result)){
+					//var_dump($result_setScan->result);
+					$set_data = clone($this->getWorksById($result_setScan->result));
+					array_push($result_set_work['correct'],$set_data->result);
+				}else{
+					array_push($result_set_work['error']['set'],$result_setScan);
+				}
+			}else{
+				array_push($result_set_work['error']['script'],$result_check_Script_server);
+			}
+		}
+
+		$this->response->result = $result_set_work['correct'];
+		if(empty($result_set_work['error']['set']) && empty($result_set_work['error']['script'])){
+			return $this->response->SetResponse(True,"new work created");
+		}else{
+			$this->response->errors = $result_set_work['error'];
+			return $this->response->SetResponse(False,"some error");
+		}
+	}
+
+
+
 	public function setPortScan($id_server,$data)
 	{
 		return $this->model->setPortScan($data);

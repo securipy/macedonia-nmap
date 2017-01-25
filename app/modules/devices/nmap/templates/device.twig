@@ -1,0 +1,78 @@
+{% extends "templates/base.twig" %} 
+
+{% block body %}
+
+
+
+<!-- page content -->
+<div class="right_col" role="main">
+  <!-- top tiles -->
+
+  <!-- /top tiles -->
+
+  <div class="row">
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+
+
+
+      <div class="page-header">
+        <h2><i class="fa fa-th-large"></i>Ports
+        </h2>
+      </div>
+      <ul class="ports">
+        {% if device.response == true %}
+          {% for port in device.result%}
+
+        <li><a href="#{{port.port}}">{{port.port}}</a>
+          {% endfor %}
+         {% endif %}
+        </li>
+      </ul>
+      <div style="clear:both"></div>
+      <div class="page-header">
+        <h2><i class="fa fa-th-list"></i>Services
+        </h2>
+      </div>
+      <ul class="services">
+ {% if device.response == true %}
+          {% for port in device.result%}
+
+        <li class="service service-long"><a name="443"></a>
+          <div class="service-details">
+            <div class="port">{{port.port}}</div>
+            <div class="protocol">{{port.status}}</div>
+            <div class="state">{{port.status}}</div><!--<a href="http://208.67.32.91:443" target="_blank" class="link"><i class="fa fa-mail-forward">&nbsp;-->
+          </i></a>
+        </div>
+        <div class="service-main">
+          <!--<h3>Apache httpd<small>Version: 2.2.21</small></h3>-->
+          <pre>{{port.extra}}</pre>
+            <div class="clear"></div>
+          </div>
+        </li>
+
+          {% endfor %}
+         {% endif %}
+      </ul>
+
+
+
+    </div>
+  </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+
+{% block css %}
+ {{ parent() }}
+    <link href="{{ base_url() }}/modules/devices/css/device.css" rel="stylesheet">
+
+{% endblock %}
+

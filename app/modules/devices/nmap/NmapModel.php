@@ -4,7 +4,7 @@ namespace App\Model;
 use App\Lib\Response,
 App\Lib\Auth;
 
-class NmapModel
+class NmapModel extends MasterModel
 {
     private $db;
     private $response;
@@ -13,8 +13,41 @@ class NmapModel
     {
         $this->db = $db;
         $this->response = new Response();
+        parent::__construct($db,$this->response);
     }
     
+
+    public function getScanByIdDevice($id_device)
+    {
+        $sql = "SELECT sw.id,sw.date_execute,sw.date_start,sw.date_finish,s.name,s.ip_domain FROM script_work as sw, servers as s, servers_scripts as ss WHERE sw.id_info_work=:id_device AND sw.id_script_server=ss.id_server_script AND ss.id_server=s.id";
+
+       
+        $st = $this->db->prepare($sql);
+
+        $st->bindParam(':id_device',$id_device);
+        $this->response->result = null;  
+        if($st->execute()){
+            $this->response->result = $st->fetchAll();
+            return $this->response->SetResponse(true,"Get Scans");
+        }else{
+            return $this->response->SetResponse(false,"Error Get Scans");
+        }
+    }
+
+    public function getIpByDevice($id_device)
+    {
+        $sql = "SELECT ip_domain FROM devices WHERE id = :id_device";
+        $st = $this->db->prepare($sql);
+
+        $st->bindParam(':id_device',$id_device);
+        $this->response->result = null;  
+        if($st->execute()){
+            $this->response->result = $st->fetchAll();
+            return $this->response->SetResponse(true,"Get Ip");
+        }else{
+            return $this->response->SetResponse(false,"Error Get Ip");
+        }
+    }
 
     public function getDeviceToScan($id_server)
     {

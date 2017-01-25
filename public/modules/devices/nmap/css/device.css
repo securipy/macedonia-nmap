@@ -1,0 +1,100 @@
+
+.ports li {
+    font-weight: normal;
+}
+.ports li {
+    background-color: #1ca8dd;
+    color: white;
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    height: 48px;
+    list-style-type: none;
+    margin: 5px;
+    position: relative;
+    text-shadow: none;
+    width: 48px;
+}
+
+.ports li > a {
+    color: white;
+    position: absolute;
+    text-align: center;
+    top: 30%;
+    width: 48px;
+}
+
+
+li.service-long {
+    width: 100%;
+}
+li.service {
+    border-bottom: 1px solid #ddd;
+    float: left;
+    list-style-type: none;
+    padding: 10px 0 20px;
+}
+
+.service-details {
+    float: left;
+    margin-right: 20px;
+    text-align: center;
+    width: 100px;
+}
+
+
+.service-details .port {
+    background-color: #1ca8dd;
+}
+.service-details > div, .service-details > a {
+    color: white;
+    text-shadow: none;
+}
+
+.service-details .protocol {
+    background-color: #ff915f;
+}
+
+.service-details .state {
+    background-color: #505050;
+}
+
+.service-details .link {
+    background-color: #7dbb4d;
+    color: white;
+    display: block;
+    margin-top: 20px;
+}
+
+.service-main {
+    float: left;
+    max-width: 100%;
+}
+
+li.service h3 {
+    line-height: 1;
+}
+.service-main h3 {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
+
+.service-main pre {
+    border-top: 0 none;
+    padding-top: 0;
+}
+.service-main pre {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: transparent;
+    border-color: #eee -moz-use-text-color -moz-use-text-color;
+    border-image: none;
+    border-style: solid none none;
+    border-width: 1px 0 0;
+    margin: 0;
+    padding: 10px 0;
+}
+

@@ -1,0 +1,135 @@
+{% extends "templates/base.twig" %} 
+
+{% block body %}
+
+
+   <!-- page content -->
+        <div class="right_col" role="main">
+          <div class="row">
+          	<div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>{% trans %}port scan{% endtrans %} - {{ip.result[0].ip_domain}}</h2>
+                      <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <li id="add-scan"><a><i class="fa fa-plus"></i></a></li>
+                      </ul>
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+                    <table id="datatable" class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                          <th>{% trans %}server{% endtrans %}</th>
+                          <th>{% trans %}ip/domains{% endtrans %}</th>
+                          <th>{% trans %}execution day{% endtrans %}</th>
+                          <th>{% trans %}start day{% endtrans %}</th>
+                          <th>{% trans %}end day{% endtrans %}</th>
+                          <th>{% trans %}actions{% endtrans %}</th>
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                      {% if scans.response == true %}
+                      	{% for scan in scans.result%}
+                        <tr>
+                          <td>{{scan.name}}</td>
+                          <td>{{scan.ip_domain}}</td>
+                          <td>{{scan.date_execute}}</td>
+                          <td>{{scan.date_start}}</td>
+                          <td>{{scan.date_finish}}</td>
+                          <td>
+                              <a href="/device/nmap/details/{{scan.id}}" type="button" class="btn btn-default" data-id="{{scan.id}}">{% trans %}details{% endtrans %}</a>
+                              <button type="button" class="btn btn-danger delete_device" data-id="{{scan.id}}">{% trans %}delete{% endtrans %}</button>
+                          </td>
+            
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+
+        </div>
+        <!-- /page content -->
+
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true" id="add-new-scan-modal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel2">{% trans %}new scan{% endtrans %}</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal form-label-left">
+          <div class="form-group">
+            <label class="control-label col-md-4 col-sm-3 col-xs-12" for="ip_domain">{% trans %}ip/domain{% endtrans %}<span class="required">*</span>
+            </label>
+            <div class="col-md-8 col-sm-6 col-xs-12">
+              <span id="ip_domain">{{ip.result[0].ip_domain}}</span>
+            </div>
+          </div>  
+          <div class="form-group">
+            <label class="control-label col-md-4 col-sm-3 col-xs-12" for="day-scan">{% trans %}scan day{% endtrans %}<span class="required">*</span>
+            </label>
+            <div class="col-md-8 col-sm-6 col-xs-12">
+              <input id="day-scan" required="required" class="form-control col-md-7 col-xs-12" type="text">
+            </div>
+          </div> 
+          <div class="form-group">
+            <br>
+            Servers:
+            <div id="servers">
+
+            </div> 
+          </div>
+
+
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans %}close{% endtrans %}</button>
+        <button type="button" class="btn btn-primary" id="save-device">{% trans %}save{% endtrans %}</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+  <script type="text/javascript">
+  var id_device={{id_device}}
+  </script>
+ {{ parent() }}
+  <script src="{{ base_url() }}/js/bootstrap-datetimepicker-master/build/js/bootstrap-datetimepicker.min.js"></script>
+
+  <script src="{{ base_url() }}/modules/devices/nmap/js/nmap.js"></script>
+
+  <script src="http://momentjs.com/downloads/moment.js"></script>
+
+
+{% endblock %}
+
+
+{% block css %}
+ {{ parent() }}
+    <link href="{{ base_url() }}/js/bootstrap-datetimepicker-master/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+{% endblock %}

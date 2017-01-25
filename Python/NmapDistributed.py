@@ -12,18 +12,17 @@ import argparse
 import requests
 import jwt
 import json
-from libnmap.process import NmapProcess
-from libnmap.parser import NmapParser
+import nmap
 from time import gmtime, strftime
 import os
 
 
-__author__ 		= "GoldraK"
-__credits__ 		= "GoldraK"
-__version__ 		= "0.1"
-__maintainer__ 		= "GoldraK"
-__email__ 		= "goldrak@gmail.com"
-__status__ 		= "Development"
+__author__			= "GoldraK"
+__credits__			= "GoldraK"
+__version__			= "0.1"
+__maintainer__		= "GoldraK"
+__email__			= "goldrak@gmail.com"
+__status__			= "Development"
 
 
 class NmapDistributed():
@@ -32,84 +31,52 @@ class NmapDistributed():
 		self.version = "0.1"
 		self.log = True
 		self.verbose = True
-		self.public_key = ""
-		self.private_key = ""
-		self.ip_domain_server = ""
+		self.public_key = "1584344601587bdb9a4db022.75409245"
+		self.private_key = "1331909997587bdb9a4db479.67780769"
 		self.app_granada_token = "app-granada"
-		self.domain = ""
-
+		self.domain = "http://api.granada.com"
+		self.nm = nmap.PortScanner()
 
 
 	def NmapDistributed(self):
 		args = self.__handleArguments()
 		token = self.__createJWT()
 		headers = {self.app_granada_token:token}
-		r = requests.get(self.domain+'/nmap/distributed',headers=headers)
-		print r.text
-		data = json.loads(r.text)
-		print data
-		if(data['response'] == True):
-			if not data['result']:
-				if self.log:
-					self.__writeLog("Not devices to scan")
+		r = requests.get(self.domain+'/device/nmap/distributed',headers=headers)
+		if r.status_code == 200:
+			data = json.loads(r.text)
+			if(data['response'] == True):
+				if not data['result']:
+					if self.log:
+						self.__writeLog("Not devices to scan")
+				else:
+					for toscan in data['result']:
+						self.__scanDevice(toscan['ip_domain'],toscan['id'])
 			else:
-				for toscan in data['result']:
-					self.__scanDevice(toscan['ip_domain'],toscan['id'])
+				self.__writeLog(data['message'])
 		else:
-			self.__writeLog(data['message'])
+			self.__writeLog(r.text)
+			 
 
 	def __scanDevice(self,ip,id_scan):
 		msg = "Start scan device: "+ip
 		self.__writeLogConsole(msg)
-		nm = NmapProcess(str(ip),options="-sV -sC")
-		rc = nm.run()
-		if nm.rc == 0:
-			try:
-				file_name = str(ip)+"_"+strftime("%Y-%m-%d_%H:%M:%S", gmtime())+'.xml'
-				file_read = open(str(ip)+"_"+strftime("%Y-%m-%d_%H:%M:%S", gmtime())+'.xml', 'w+')
-				file_read.write(nm.stdout)
-				file_read.close()
-			except IOError:
-				msg = "Error create output xml"
-				self.__writeLogConsole(msg)
-				sys.exit(-1)
-			self.__uploadScan(file_name,id_scan)
-
-		else:
-		    self.__writeLog(nm.stderr)
-
-	def __uploadScan(self,file_name,id_scan): 
-		token = self.__createJWT()
-		headers = {self.app_granada_token:token}
-		files = {'nmap': open(os.path.dirname(os.path.realpath(__file__))+"/"+file_name, 'rb')}
-		r = requests.post(self.domain+'/nmap/scan', data = {'id_scan':id_scan},files=files,headers=headers,stream=True)
-		data = json.loads(r.text)
-		if(data['response'] == True):
-			msg = "Scan Upload, prepare to analyze"
-			self.__writeLogConsole(msg)
-			self.__parseScan(file_name,id_scan)
-		else:
-			self.__writeLog("Error upload data to server "+file_name)
-
-	def __parseScan(self,file_name,id_scan):
-		full_path = os.path.dirname(os.path.realpath(__file__))+"/"+file_name
-		nmap_report = NmapParser.parse_fromfile(full_path)
-		token = self.__createJWT()
-		headers = {self.app_granada_token:token}
-		for host in nmap_report.hosts:
-			if len(host.hostnames):
-				tmp_host = host.hostnames.pop()
-			else:
-				tmp_host = host.address
-
-			#self.__writeLogConsole(host.services)
-		
-			hostport = {}
-			hosttotal = {}
-			
-			for serv in host.services:
-				r = requests.post(self.domain+'/nmap/port', data = {'id_scan':id_scan,'port':serv.port,'protocol':serv.protocol,'state':serv.state,'service':serv.service,'banner':serv.banner},headers=headers)
-				self.__writeLogConsole(r.text)
+		try:
+			self.nm.scan(hosts=ip,arguments="-sV -sC")
+		except Exception as e:
+			raise e
+			self.__writeLog(e)
+		for host in self.nm.all_hosts():
+		    for proto in nm[host].all_protocols():
+		        lport = nm[host][proto].keys()
+		        lport = sorted(lport)
+		        for port in lport:
+		        	r = requests.post(self.domain+'device/nmap/port', data = {'id_scan':id_scan,'port':port,'protocol':nm[host][proto],'state':nm[host][proto][port]['state'],'service':nm[host][proto][port]['product'],'version':nm[host][proto][port]['version'],'banner':nm[host][proto][port]['extrainfo']},headers=headers)
+		        	if r.status_code != 200:
+	   					data = json.loads(r.text)
+	   					if(data['response'] == False):
+	   						self.__writeLog(data['message'])
+	
 				
 
 	def __createJWT(self):
@@ -150,7 +117,7 @@ class NmapDistributed():
 			if self.verbose:
 				self.__consoleMessage(debugemail)
 		problems = server.sendmail(opts.user, opts.emailto, message)
-		print problems
+		print (problems)
 		server.quit()
 
 
@@ -160,7 +127,7 @@ class NmapDistributed():
 		"""
 		ts = time.time()
 		st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-		print '['+st+'] '+str(message)
+		print ('['+st+'] '+str(message))
 
 
 	def __writeLog(self,log):
